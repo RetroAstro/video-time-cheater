@@ -7,5 +7,6 @@
 
 **Status：**
 
-* building ... 😄
+* automatic login 🧡
+* building ...
 

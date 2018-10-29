@@ -1,8 +1,8 @@
 const APP_ID = 14594501
 const API_KEY = 'EYUOCTk6482k480T4kqBF1W6'
 const SECRET_KEY = 'kEIBfFecGQvMGiA1rhiwBEinKVlX1vR4'
-const USER_NAME = 'username'
-const PASS_WORD = 'password'
+const USER_NAME = '2017212786'
+const PASS_WORD = 'SH456852357951.'
 
 module.exports = {
     APP_ID,
@@ -11,3 +11,4 @@ module.exports = {
     USER_NAME,
     PASS_WORD
 }
+

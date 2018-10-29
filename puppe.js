@@ -4,7 +4,30 @@ const { USER_NAME, PASS_WORD } = require('./config')
 
 const target = 'http://passport2.chaoxing.com/login?fid=1842&refer=http://i.mooc.chaoxing.com/space/index.shtml'
 
-const login = async (NUM_CODE) => {
+const getImageBase64 = () => {
+    return new Promise((resolve) => {
+        let span = document.querySelector('.table_nvc span')
+        span.click()
+        let img = document.querySelector('.table_nvc img')
+        img.onload = () => {
+            let image = getBase64Image(img)
+            let base64 = image.split(',')[1]
+            resolve(base64)
+        }
+        function getBase64Image(img) {
+            var canvas = document.createElement("canvas")
+            canvas.width = img.width
+            canvas.height = img.height
+            var ctx = canvas.getContext("2d")
+            ctx.drawImage(img, 0, 0, img.width, img.height)
+            var dataURL = canvas.toDataURL("image/jpeg")
+            canvas = null
+            return dataURL
+        }
+    })
+}
+
+const login = ({USER_NAME, PASS_WORD, NUM_CODE}) => {
     let user_input = document.querySelector('#unameId')
     let pw_input = document.querySelector('#passwordId')
     let code_input = document.querySelector('#numcode')
@@ -15,14 +38,19 @@ const login = async (NUM_CODE) => {
     login.click()
 }
 
-const start = async function () {
+const start = async () => {
     let browser = await puppeteer.launch({ headless: false })
     let page = await browser.newPage()
     await page.goto(target)
-    await page.evaluate(() => {
-        // ...
-    })
+    const getFourBitCode = async () => {
+        let base64 = await page.evaluate(getImageBase64)
+        let success = await identify(base64)
+        return success ? success : getFourBitCode()
+    }
+    let NUM_CODE = await getFourBitCode()
+    console.log('four bit code : ' + NUM_CODE)
+    await page.evaluate(login, { USER_NAME, PASS_WORD, NUM_CODE })
 }
 
-identify((res) => console.log(res))
+start()
 
