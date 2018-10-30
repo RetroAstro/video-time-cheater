@@ -27,7 +27,7 @@ const getImageBase64 = () => {
     })
 }
 
-const login = ({USER_NAME, PASS_WORD, NUM_CODE}) => {
+const submit = ({USER_NAME, PASS_WORD, NUM_CODE}) => {
     let user_input = document.querySelector('#unameId')
     let pw_input = document.querySelector('#passwordId')
     let code_input = document.querySelector('#numcode')
@@ -49,7 +49,12 @@ const start = async () => {
     }
     let NUM_CODE = await getFourBitCode()
     console.log('four bit code : ' + NUM_CODE)
-    await page.evaluate(login, { USER_NAME, PASS_WORD, NUM_CODE })
+    await page.evaluate(submit, { USER_NAME, PASS_WORD, NUM_CODE })
+    await page.waitFor(2000)
+    let url = await page.evaluate(() => window.frames['frame_content'].document.querySelectorAll('.Mcon1img a')[0].getAttribute('href'))
+    await page.goto(url)
+    await page.waitFor(2000)
+    await page.evaluate(() => document.querySelectorAll('.timeline a')[1].click())
 }
 
 start()

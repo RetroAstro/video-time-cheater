@@ -3,6 +3,7 @@ const { APP_ID, API_KEY, SECRET_KEY } = require('./config')
 const client = new AipOcrClient(APP_ID, API_KEY, SECRET_KEY)
 
 const identify = async (base64) => {
+    await new Promise((resolve) => { setTimeout(() => resolve(), 600) })
     let data = await client.numbers(base64)
     if (!data.words_result.length) {
         return false
