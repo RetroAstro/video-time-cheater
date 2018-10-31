@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const { identify } = require('./identify')
 const { USER_NAME, PASS_WORD } = require('./config')
 
-const target = 'http://passport2.chaoxing.com/login?fid=&refer=http://i.mooc.chaoxing.com'
+const target = 'http://passport2.chaoxing.com/login?fid=1842&refer=http://i.mooc.chaoxing.com'
 
 const getImageBase64 = () => {
     return new Promise((resolve) => {
@@ -36,26 +36,29 @@ const submit = ({USER_NAME, PASS_WORD, NUM_CODE}) => {
     pw_input.value = PASS_WORD
     code_input.value = NUM_CODE
     login.click()
-    let ele = document.querySelector('#show_error')
-    return ele.textContent === '验证码错误' ? true : false
 }
 
 const start = async () => {
     let browser = await puppeteer.launch({ headless: false })
     let page = await browser.newPage()
+    await page.waitFor(1000)
     await page.goto(target)
     const getFourBitCode = async () => {
         let base64 = await page.evaluate(getImageBase64)
         let success = await identify(base64)
         return success ? success : getFourBitCode()
     }
-    const login = async () => {
+    let flag = true
+    while (flag) {
         let NUM_CODE = await getFourBitCode()
         console.log('four bit code : ' + NUM_CODE)
-        let flag = await page.evaluate(submit, { USER_NAME, PASS_WORD, NUM_CODE })
-        return flag ? login() : null
-    } 
-    login()
+        await page.evaluate(submit, { USER_NAME, PASS_WORD, NUM_CODE })
+        await page.waitFor(1000)
+        flag = await page.evaluate(() => {
+            let ele = document.querySelector('#show_error')
+            return ele ? true : false
+        })
+    }
     await page.waitFor(2000)
     let url = await page.evaluate(() => window.frames['frame_content'].document.querySelectorAll('.Mcon1img a')[0].getAttribute('href'))
     await page.goto(url)
